@@ -1,5 +1,8 @@
 <script lang="ts" setup>
+import { useUserStore } from "@/store/user"
 
+const userStore = useUserStore()
+const user = userStore.user
 </script>
 
 <template>
@@ -10,6 +13,9 @@
     <el-row>
       <el-col :lg="{offset: 8, span: 8}" :span="24">
         <el-form label-position="left" label-width="80" size="small">
+          <el-form-item label="账号" prop="loginName">
+            <el-input disabled :model-value="user?.loginName"/>
+          </el-form-item>
           <el-form-item label="姓名">
             <el-input/>
           </el-form-item>
