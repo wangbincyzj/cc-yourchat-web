@@ -8,7 +8,7 @@
       <h3>用户信息设置</h3>
     </el-divider>
     <el-row>
-      <el-col :span="12">
+      <el-col :lg="{offset: 8, span: 8}" :span="24">
         <el-form label-position="left" label-width="80" size="small">
           <el-form-item label="姓名">
             <el-input/>
@@ -24,7 +24,7 @@
       <h3>系统设置</h3>
     </el-divider>
     <el-row>
-      <el-col :span="12">
+      <el-col :lg="{offset: 8, span: 8}" :span="24">
         <el-form label-position="left" label-width="80" size="small">
           <el-form-item label="保存信息到云端">
             <el-checkbox disabled/>

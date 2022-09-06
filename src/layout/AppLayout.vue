@@ -3,13 +3,15 @@ import MetaMenu from "@/layout/MetaMenu.vue"
 import { useRoute, useRouter } from "vue-router"
 import { computed, watch } from "vue"
 import { useUserStore } from "@/store/user"
+import { setItem } from "@/utils/common/storage"
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 
 userStore.$subscribe((mutation, state) => {
-
+  console.log("change", state.user)
+  setItem("user", state.user)
 })
 
 const isFullScreen = computed(() => {

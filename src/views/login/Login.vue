@@ -24,6 +24,7 @@ const router = useRouter()
 const route = useRoute()
 
 const handleLogin = () => {
+  loading.value = true
   userApi.login(loginForm).then(ret => {
     if (ret.data) {
       ElMessage.success("登录成功")

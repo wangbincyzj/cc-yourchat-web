@@ -1,4 +1,5 @@
 import { defineStore } from "pinia"
+import { getItem } from "@/utils/common/storage"
 
 interface UserStore {
   user: Nullable<User>
@@ -9,7 +10,7 @@ export const useUserStore = defineStore<"user", UserStore, any, {
 }>("user", {
   state () {
     return {
-      user: null
+      user: getItem("user")
     }
   },
   actions: {
