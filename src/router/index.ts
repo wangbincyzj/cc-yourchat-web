@@ -4,7 +4,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     name: "login",
     path: "/login",
-    component: () => import("@/views/login/login.vue"),
+    component: () => import("@/views/login/Login.vue"),
     meta: {
       fullScreen: true
     }
@@ -12,7 +12,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     name: "config",
     path: "/config",
-    component: () => import("@/views/config/config.vue")
+    component: () => import("@/views/config/Config.vue")
   }
 ]
 
