@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import MetaMenu from "@/layout/MetaMenu.vue"
 import { useRoute, useRouter } from "vue-router"
-import { computed, watch } from "vue"
+import { computed, onMounted, watch } from "vue"
 import { useUserStore } from "@/store/user"
 import { setItem } from "@/utils/common/storage"
 
@@ -26,6 +26,12 @@ watch(() => userStore.user, value => {
     }
   }
 }, { immediate: true })
+
+onMounted(() => {
+  if (userStore.user?.token) {
+    userStore.updateUserInfo()
+  }
+})
 
 </script>
 
