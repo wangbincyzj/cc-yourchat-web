@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import { reactive, ref } from "vue"
-import { userApi } from "@/apis/user"
 import { userFriendApi } from "@/apis/userFriend"
 
-const show = ref(true)
+const show = ref(false)
 
 const formData = reactive({
   userId: ""
@@ -35,5 +34,3 @@ const handleAddFriend = () => {
     </el-form>
   </el-dialog>
 </template>
-
-
