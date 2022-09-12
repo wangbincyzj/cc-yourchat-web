@@ -4,13 +4,13 @@ import { useRoute, useRouter } from "vue-router"
 import { computed, onMounted, watch } from "vue"
 import { useUserStore } from "@/store/user"
 import { setItem } from "@/utils/common/storage"
+import ChatService from "@/layout/ChatService.vue"
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 
 userStore.$subscribe((mutation, state) => {
-  console.log("change", state.user)
   setItem("user", state.user)
 })
 
@@ -36,14 +36,18 @@ onMounted(() => {
 </script>
 
 <template>
-  <div id="app">
-    <div class="meta-menu" v-show="!isFullScreen">
-      <MetaMenu/>
+  <ChatService>
+    <div id="app">
+      <div class="meta-menu" v-show="!isFullScreen">
+        <MetaMenu/>
+      </div>
+      <div class="router-view">
+        <router-view/>
+
+      </div>
+
     </div>
-    <div class="router-view">
-      <router-view/>
-    </div>
-  </div>
+  </ChatService>
 </template>
 
 <style lang="scss" scoped>
@@ -51,7 +55,7 @@ onMounted(() => {
   display: flex;
 
   .meta-menu {
-    @apply flex-shrink-0 basis-[80px] bg-gray-200 overflow-x-hidden;
+    @apply flex-shrink-0 basis-[80px] bg-gray-300 overflow-x-hidden;
   }
 
   .router-view {

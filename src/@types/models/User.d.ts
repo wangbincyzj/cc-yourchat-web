@@ -6,4 +6,5 @@ interface User {
   loginPass: string
   trueName: string
   avatar: Nullable<string>
+  online: boolean
 }

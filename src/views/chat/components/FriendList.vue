@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 import { userFriendApi } from "@/apis/userFriend"
-import { inject, onMounted, reactive } from "vue"
+import { inject, onMounted, reactive, Ref } from "vue"
+import { Emitter } from "mitt"
 
 const currentContext = inject<{ user: User }>("chatContext")!
-console.log(currentContext)
-
 const fetchFriendList = () => {
   userFriendApi.getFriendList().then(ret => {
     friends.list = ret.data
@@ -18,19 +17,35 @@ const friends = reactive<{ list: User[] }>({
 })
 
 const setActive = (user: User) => {
+  // 判断ws连接情况
   currentContext.user = user
 }
 onMounted(() => {
   fetchFriendList()
 })
+
+const emitter = inject<Emitter<any>>("emitter")!
+
+emitter.on("online", uid => {
+  const friend = friends.list.find(item => item.userId === uid)
+  if (friend) {
+    friend.online = true
+  }
+})
+emitter.on("offline", uid => {
+  const friend = friends.list.find(item => item.userId === uid)
+  if (friend) {
+    friend.online = false
+  }
+})
 </script>
 
 <template>
   <div class="friend-list">
-    <div class="friend-item" :class="{active: currentContext.user.userId===friend.userId}"
+    <div class="friend-item" :class="{'friend-item-active': currentContext.user && currentContext.user.userId===friend.userId}"
          v-for="friend in friends.list" :key="friend.userId" @click="setActive(friend)">
       <div class="avatar">
-        <img :src="friend.avatar || defaultAvatar" alt="">
+        <img :class="{offline: !friend.online}" :src="friend.avatar || defaultAvatar" alt="">
       </div>
       <div class="info">
         <span class="name">
@@ -43,15 +58,20 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .friend-list {
-  @apply p-1;
 }
 
 .friend-item {
-  @apply flex h-[60px] border mb-0.5 duration-200 hover:border-amber-200 cursor-pointer;
+  @apply flex h-[60px] border mb-0.5 duration-200 hover:border-amber-200 cursor-pointer overflow-hidden p-2;
+  &-active {
+    @apply bg-gray-300;
+  }
   .avatar {
-    @apply h-[60px] w-[60px] mr-1;
+    @apply h-[42px] w-[42px] mr-1;
     img {
       @apply h-full w-full;
+    }
+    .offline {
+      filter: grayscale(100%);
     }
   }
 

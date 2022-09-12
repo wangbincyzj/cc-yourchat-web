@@ -1,18 +1,29 @@
 <script setup lang="ts">
 import AddFriend from "@/views/chat/components/AddFriend.vue"
 import FriendList from "@/views/chat/components/FriendList.vue"
-import { provide, reactive, watch } from "vue"
+import Main from "@/views/chat/components/main/Main.vue"
+import { inject, provide, reactive } from "vue"
+import { Emitter } from "mitt"
+import { loadFriendMessage, saveFriendMessage } from "@/views/chat/utils"
+
+const emitter = inject("emitter") as Emitter<any>
 
 const currentChatContext = reactive<{
   user: Nullable<User>
 }>({
   user: null
 })
-
 provide("chatContext", currentChatContext)
 
-watch(() => currentChatContext.user, value => {
-  console.log("context change:", value)
+// 保存消息应该在上层不依赖context
+emitter.on("message", (msg: Message) => {
+  const isCurrentMsg = currentChatContext.user && currentChatContext.user.userId && currentChatContext.user.userId === msg.to
+  if (!isCurrentMsg) {
+    loadFriendMessage(msg.from).then(ret => {
+      ret.push(msg)
+      saveFriendMessage(msg.from, ret)
+    })
+  }
 })
 
 </script>
@@ -27,16 +38,7 @@ watch(() => currentChatContext.user, value => {
       </div>
       <FriendList/>
     </div>
-    <div class="main">
-      <div class="window"></div>
-      <div class="toolbar"></div>
-      <div class="input">
-        <textarea/>
-        <div class="send">
-          <el-button size="small">send</el-button>
-        </div>
-      </div>
-    </div>
+    <Main v-if="currentChatContext.user"/>
   </div>
 </template>
 
@@ -44,33 +46,10 @@ watch(() => currentChatContext.user, value => {
 .chat {
   @apply flex h-full overflow-hidden;
   .friends {
-    @apply basis-[300px] bg-gray-100 flex-shrink-0 h-full;
+    @apply basis-[300px] bg-gray-200 flex-shrink-0 h-full;
     .search-area {
       @apply flex p-2 border-b;
     }
   }
-
-  .main {
-    @apply flex-1 flex flex-col;
-    .window {
-      @apply flex-1;
-    }
-
-    .toolbar {
-      @apply bg-gray-50 h-[30px];
-    }
-
-    .input {
-      @apply h-[300px] flex flex-col;
-      textarea {
-        @apply flex-1;
-      }
-
-      .send {
-        @apply h-[30px] flex justify-end bg-gray-50 items-center px-2;
-      }
-    }
-  }
 }
 </style>
-

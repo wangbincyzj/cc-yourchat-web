@@ -85,7 +85,7 @@ const handleSuccess: UploadProps["onSuccess"] = (response: any, uploadFile: Uplo
   }
 }
 
-watch(() => fileList.value.length, handleChange)
+watch(() => fileList.value, handleChange, { deep: true })
 
 const handlePictureCardPreview: UploadProps["onPreview"] = (uploadFile) => {
   dialogImageUrl.value = uploadFile.url!

@@ -1,0 +1,4 @@
+export enum SysMessageType {
+  FRIEND_ONLINE = "FRIEND_ONLINE",
+  FRIEND_OFFLINE = "FRIEND_OFFLINE"
+}
