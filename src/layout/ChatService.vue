@@ -50,8 +50,7 @@ watch(() => userStore.user, (value) => {
   if (value && value.token) {
     const socket = new WebSocket(`${wsUrl}?token=${value.token}`)
     socket.addEventListener("open", () => {
-      console.log("socket 建立连接成功")
-      ElMessage.success("WebSocket连接成功")
+      // todo
     })
     socket.addEventListener("close", () => {
       console.log("socket 断开链接")

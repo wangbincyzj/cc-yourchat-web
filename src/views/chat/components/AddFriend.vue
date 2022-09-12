@@ -1,8 +1,14 @@
 <script lang="ts" setup>
-import { reactive, ref } from "vue"
+import { defineEmits, reactive, ref } from "vue"
 import { userFriendApi } from "@/apis/userFriend"
 
-const show = ref(false)
+const props = defineProps<{
+  modelValue: boolean
+}>()
+// eslint-disable-next-line func-call-spacing
+const emit = defineEmits<{
+  (event: "update:modelValue", id: number): void
+}>()
 
 const formData = reactive({
   userId: ""
@@ -19,7 +25,7 @@ const handleAddFriend = () => {
 </script>
 
 <template>
-  <el-dialog v-model="show" title="添加好友" center>
+  <el-dialog :model-value="props.modelValue" @update:modelValue="(val) => emit('update:modelValue', val)"  title="添加好友" center>
     <el-form label-width="80px">
       <el-form-item label="用户ID">
         <el-input v-model="formData.userId">

@@ -43,7 +43,6 @@ onMounted(() => {
       </div>
       <div class="router-view">
         <router-view/>
-
       </div>
 
     </div>
@@ -53,13 +52,13 @@ onMounted(() => {
 <style lang="scss" scoped>
 #app {
   display: flex;
-
   .meta-menu {
     @apply flex-shrink-0 basis-[80px] bg-gray-300 overflow-x-hidden;
   }
 
   .router-view {
     flex: 1;
+    overflow-x: hidden;
     height: 100%;
   }
 }

@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { inject, nextTick, ref, watch } from "vue"
+import { computed, inject, nextTick, ref, watch } from "vue"
 import { Emitter } from "mitt"
-import { getItem, setItem } from "@/utils/common/storage"
 import { useUserStore } from "@/store/user"
 import { loadFriendMessage, saveFriendMessage } from "@/views/chat/utils"
+import { Files } from "@element-plus/icons-vue"
+import { fileApi } from "@/apis/file"
+import FileType from "@/views/chat/components/file-type/FileType.vue"
 
 const userStore = useUserStore()
 const emitter = inject("emitter") as Emitter<any>
@@ -11,7 +13,7 @@ const currentChatContext = inject<{ user: User }>("chatContext")!
 const text = ref("")
 const window = ref<HTMLDivElement>()
 const msgList = ref<Message[]>([])
-
+const loading = ref(false)
 const constructP2PMessage = (message: string, to: string) => {
   return {
     type: 0,
@@ -34,6 +36,18 @@ const sendP2PMessage = () => {
   emitter.emit("send", constructP2PMessage(text.value, currentChatContext.user.userId))
   text.value = ""
 }
+const sendImageMessage = () => {
+  const input: HTMLInputElement = document.createElement("input")
+  input.onchange = () => {
+    const file = input.files![0]
+    fileApi.upload(file).then(ret => {
+      text.value = `file:${ret.data}`
+      sendP2PMessage()
+    })
+  }
+  input.type = "file"
+  input.click()
+}
 
 const scrollToLatestMessage = () => {
   nextTick(() => {
@@ -43,18 +57,22 @@ const scrollToLatestMessage = () => {
   })
 }
 
+const placeHolder = computed(() => {
+  const isCurrentUserOnline = currentChatContext.user.online
+  return isCurrentUserOnline ? "" : "当前用户不在线 可能收不到消息"
+})
+
 // 监听聊天对象改变
 watch(() => currentChatContext.user, user => {
   if (user && user.userId) {
-    loadFriendMessage(user.userId).then(msgs => {
-      console.log(msgs)
+    loadFriendMessage(userStore.user.userId + user.userId).then(msgs => {
       msgList.value = msgs
     }).finally(scrollToLatestMessage)
   }
 }, { immediate: true })
 // 监听消息持久化
 watch(() => msgList, list => {
-  saveFriendMessage(currentChatContext.user.userId, list.value)
+  saveFriendMessage(userStore.user.userId + currentChatContext.user.userId, list.value)
 }, { deep: true })
 
 </script>
@@ -65,12 +83,19 @@ watch(() => msgList, list => {
       <div class="message-item" :class="{[i.from ? 'message-item-from': 'message-item-to']: true}" v-for="i in msgList"
            :key="i.time">
         <img :src="i.from ? currentChatContext.user.avatar: userStore.user.avatar" alt="" class="avatar">
-        <p class="content">{{ i.message }}</p>
+        <div class="content">
+          <FileType :encode-string="i.message" v-if="i.message.startsWith('file:')"/>
+          <template v-else>{{ i.message }}</template>
+        </div>
       </div>
     </div>
-    <div class="toolbar"></div>
+    <div class="toolbar">
+      <el-icon class="cursor-pointer" @click="sendImageMessage">
+        <Files/>
+      </el-icon>
+    </div>
     <div class="input">
-      <textarea v-model="text" @keydown.enter.prevent="sendP2PMessage"/>
+      <textarea :placeholder="placeHolder" v-model="text" @keydown.enter.prevent="sendP2PMessage"/>
       <div class="send">
         <el-button size="small" @click="sendP2PMessage">send</el-button>
       </div>
@@ -80,10 +105,14 @@ watch(() => msgList, list => {
 
 <style lang="scss" scoped>
 .main {
-  @apply flex-1 flex flex-col bg-gray-100;
+  @apply flex-1 flex flex-col bg-gray-100 w-full overflow-hidden;
   .window {
     @apply flex-1 px-8 py-4 overflow-auto;
     .message-item {
+      @apply w-full;
+      .content {
+        @apply max-w-full overflow-hidden break-all;
+      }
       &-from {
         @apply flex mt-4 pr-[30%];
 
@@ -92,7 +121,7 @@ watch(() => msgList, list => {
         }
 
         .content {
-          @apply bg-white ml-4 rounded-xl p-2 -mt-1 whitespace-pre;
+          @apply bg-white ml-4 rounded-xl p-2 -mt-1 whitespace-pre-line;
         }
       }
 
@@ -104,14 +133,14 @@ watch(() => msgList, list => {
         }
 
         .content {
-          @apply bg-white mr-4 rounded-xl p-2 -mt-1 whitespace-pre bg-green-400;
+          @apply bg-white mr-4 rounded-xl p-2 -mt-1  bg-green-400;
         }
       }
     }
   }
 
   .toolbar {
-    @apply bg-gray-50 h-[30px];
+    @apply bg-gray-50 h-[30px] flex justify-end items-center px-2;
   }
 
   .input {
